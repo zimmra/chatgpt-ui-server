@@ -94,6 +94,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'chatgpt_ui_server.wsgi.application'
 
+db_config = dj_database_url.config('DB_URL', 'sqlite:///db.sqlite3')
+if db_config.get('ENGINE') == 'django.db.backends.mysql':
+    db_config['OPTIONS'] = {'charset': 'utf8mb4'}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -102,7 +105,7 @@ if dbcfg.get('ENGINE') == 'django.db.backends.mysql':
     dbcfg['OPTIONS'] = {'charset': 'utf8mb4'}
 
 DATABASES = {
-    'default': dbcfg
+    'default': db_config
 }
 
 
@@ -186,5 +189,4 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', True) == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False) == 'True'
-DEFAULT_FROM_EMAIL = os.getenv('EMAIL_FROM', os.getenv('EMAIL_HOST_USER', ''))
-
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_FROM', 'webmaster@localhost')

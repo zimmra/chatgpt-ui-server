@@ -11,7 +11,25 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
-from .serializers import ConversationSerializer, MessageSerializer, PromptSerializer
+from .serializers import ConversationSerializer, MessageSerializer, PromptSerializer, SettingSerializer
+from utils.search_prompt import compile_prompt
+from utils.duckduckgo_search import web_search, SearchRequest
+
+
+class SettingViewSet(viewsets.ModelViewSet):
+    serializer_class = SettingSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        available_names = [
+            'open_registration',
+            'open_web_search'
+        ]
+        return Setting.objects.filter(name__in=available_names)
+
+    def http_method_not_allowed(self, request, *args, **kwargs):
+        if request.method != 'GET':
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().http_method_not_allowed(request, *args, **kwargs)
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -134,6 +152,7 @@ def conversation(request):
     top_p = request.data.get('top_p', 1)
     frequency_penalty = request.data.get('frequency_penalty', 0)
     presence_penalty = request.data.get('presence_penalty', 0)
+    web_search_params = request.data.get('web_search')
 
     if conversation_id:
         # get the conversation
@@ -150,11 +169,12 @@ def conversation(request):
     message_obj.save()
 
     try:
-        messages = build_messages(conversation_obj)
+        messages = build_messages(conversation_obj, web_search_params)
 
         if settings.DEBUG:
             print(messages)
-    except ValueError as e:
+    except Exception as e:
+        print(e)
         return Response(
             {
                 'error': e
@@ -210,7 +230,7 @@ def conversation(request):
     return StreamingHttpResponse(stream_content(), content_type='text/event-stream')
 
 
-def build_messages(conversation_obj):
+def build_messages(conversation_obj, web_search_params):
     model = get_current_model()
 
     ordered_messages = Message.objects.filter(conversation=conversation_obj).order_by('created_at')
@@ -227,7 +247,12 @@ def build_messages(conversation_obj):
     while current_token_count < max_token_count and len(ordered_messages_list) > 0:
         message = ordered_messages_list.pop()
         role = "assistant" if message.is_bot else "user"
-        new_message = {"role": role, "content": message.message}
+        if web_search_params is not None and len(messages) == 0:
+            search_results = web_search(SearchRequest(message.message, ua=web_search_params['ua']), num_results=5)
+            message_content = compile_prompt(search_results, message.message, default_prompt=web_search_params['default_prompt'])
+        else:
+            message_content = message.message
+        new_message = {"role": role, "content": message_content}
         new_token_count = num_tokens_from_messages(system_messages + messages + [new_message])
         if new_token_count > max_token_count:
             if len(messages) > 0:
