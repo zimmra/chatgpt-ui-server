@@ -32,9 +32,6 @@ SECRET_KEY = 'django-insecure-__9p!i2^udts*l==hl)+6=!fi872f3ec(n%(^f-!6i$o5+7#ar
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False) == 'True'
 
-# define dj_database_url config to handle mysql charset
-dbcfg = dj_database_url.config('DB_URL', 'sqlite:///db.sqlite3')
-
 ALLOWED_HOSTS = ['*']
 
 app_domains = os.getenv('APP_DOMAIN', 'localhost:9000').split(',')
@@ -100,9 +97,6 @@ if db_config.get('ENGINE') == 'django.db.backends.mysql':
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-if dbcfg.get('ENGINE') == 'django.db.backends.mysql':
-    dbcfg['OPTIONS'] = {'charset': 'utf8mb4'}
 
 DATABASES = {
     'default': db_config
