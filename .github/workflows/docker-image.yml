@@ -33,7 +33,7 @@ jobs:
         context: .
         target: wsgi-server
         push: true
-        tags: tags: pzubuntu593/chatgpt-ui-wsgi-server:latest-gpt3,pzubuntu593/chatgpt-ui-wsgi-server:${{ github.ref_name }}-gpt3
+        tags: pzubuntu593/chatgpt-ui-wsgi-server:latest-gpt3,pzubuntu593/chatgpt-ui-wsgi-server:${{ github.ref_name }}-gpt3
     -
       name: Build and push Web Server
       uses: docker/build-push-action@v4
