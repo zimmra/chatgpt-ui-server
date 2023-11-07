@@ -215,11 +215,23 @@ MODELS = {
         'max_prompt_tokens': 12384,
         'max_response_tokens': 4000
     },
+    'gpt-3.5-turbo-1106': {
+        'name': 'gpt-3.5-turbo-1106',
+        'max_tokens': 16384,
+        'max_prompt_tokens': 12384,
+        'max_response_tokens': 4000
+    },
     'gpt-4-32k': {
         'name': 'gpt-4-32k',
         'max_tokens': 32768,
         'max_prompt_tokens': 24768,
         'max_response_tokens': 8000
+    },
+    'gpt-4-1106-preview': {
+        'name': 'gpt-4-1106-preview',
+        'max_tokens': 128000,
+        'max_prompt_tokens': 96000,
+        'max_response_tokens': 32000
     }
 }
 
@@ -801,14 +813,20 @@ def num_tokens_from_text(text, model="gpt-3.5-turbo-0301"):
     elif model == "gpt-3.5-turbo-16k":
         print("Warning: gpt-3.5-turbo-16k may change over time. Returning num tokens assuming gpt-3.5-turbo-16k-0613.")
         return num_tokens_from_text(text, model="gpt-3.5-turbo-16k-0613")
+    elif model == "gpt-3.5-turbo-1106":
+        print("Returning num tokens assuming gpt-3.5-turbo-1106.")
+        return num_tokens_from_text(text, model="gpt-3.5-turbo-1106")
     elif model == "gpt-4":
         print("Warning: gpt-4 may change over time. Returning num tokens assuming gpt-4-0314.")
         return num_tokens_from_text(text, model="gpt-4-0613")
     elif model == "gpt-4-32k":
         print("Warning: gpt-4 may change over time. Returning num tokens assuming gpt-4-0314.")
         return num_tokens_from_text(text, model="gpt-4-32k-0613")
+    elif model == "gpt-4-1106-preview":
+        print("Returning num tokens assuming gpt-4-1106-preview.")
+        return num_tokens_from_text(text, model="gpt-4-1106-preview"
 
-    if model not in ["gpt-3.5-turbo-0613", "gpt-4-0613", "gpt-3.5-turbo-16k-0613", "gpt-4-32k-0613"]:
+    if model not in ["gpt-3.5-turbo-0613", "gpt-4-0613", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-16k-0613", "gpt-4-32k-0613", "gpt-4-1106-preview"]:
         raise NotImplementedError(f"""num_tokens_from_text() is not implemented for model {model}.""")
 
     return len(encoding.encode(text))
@@ -839,10 +857,16 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301"):
     elif model == "gpt-3.5-turbo-16k-0613":
         tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
         tokens_per_name = -1  # if there's a name, the role is omitted
+    elif model == "gpt-3.5-turbo-1106":
+        tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+        tokens_per_name = -1  # if there's a name, the role is omitted
     elif model == "gpt-4-0613":
         tokens_per_message = 3
         tokens_per_name = 1
     elif model == "gpt-4-32k-0613":
+        tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+        tokens_per_name = -1  # if there's a name, the role is omitted
+    elif model == "gpt-4-1106-preview":
         tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
         tokens_per_name = -1  # if there's a name, the role is omitted
     else:
