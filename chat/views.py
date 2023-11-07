@@ -824,7 +824,7 @@ def num_tokens_from_text(text, model="gpt-3.5-turbo-0301"):
         return num_tokens_from_text(text, model="gpt-4-32k-0613")
     elif model == "gpt-4-1106-preview":
         print("Returning num tokens assuming gpt-4-1106-preview.")
-        return num_tokens_from_text(text, model="gpt-4-1106-preview"
+        return num_tokens_from_text(text, model="gpt-4-1106-preview")
 
     if model not in ["gpt-3.5-turbo-0613", "gpt-4-0613", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-16k-0613", "gpt-4-32k-0613", "gpt-4-1106-preview"]:
         raise NotImplementedError(f"""num_tokens_from_text() is not implemented for model {model}.""")
